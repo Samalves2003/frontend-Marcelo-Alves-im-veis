@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Marcelo Alves Imóveis - Compra, Venda e Aluguel de Imóveis</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="container">
+            <div class="nav-brand">
+                <img src="logo.png" alt="Marcelo Alves Imóveis" class="logo">
+                <h1>Marcelo Alves Imóveis</h1>
+            </div>
+            <nav class="nav-menu">
+                <a href="#home" class="nav-link">Início</a>
+                <a href="#imoveis" class="nav-link">Imóveis</a>
+                <a href="#sobre" class="nav-link">Sobre</a>
+                <a href="#contato" class="nav-link">Contato</a>
+            </nav>
+            <div class="contact-info">
+                <div class="phone">
+                    <i class="fas fa-phone"></i>
+                    <span>(11) 99999-9999</span>
+                </div>
+                <div class="whatsapp">
+                    <i class="fab fa-whatsapp"></i>
+                    <span>(11) 99999-9999</span>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Hero Section -->
+    <section id="home" class="hero">
+        <div class="hero-overlay">
+            <div class="container">
+                <div class="hero-content">
+                    <h2>Encontre o Imóvel dos Seus Sonhos</h2>
+                    <p>Especialistas em compra, venda e aluguel de imóveis com mais de 10 anos de experiência no mercado</p>
+                    
+                    <!-- Search Form -->
+                    <div class="search-form">
+                        <div class="search-tabs">
+                            <button class="tab-btn active" data-type="comprar">Comprar</button>
+                            <button class="tab-btn" data-type="alugar">Alugar</button>
+                        </div>
+                        <div class="search-fields">
+                            <div class="field-group">
+                                <select id="tipo-imovel" class="search-input">
+                                    <option value="">Tipo de Imóvel</option>
+                                    <option value="casa">Casa</option>
+                                    <option value="apartamento">Apartamento</option>
+                                    <option value="terreno">Terreno</option>
+                                    <option value="comercial">Comercial</option>
+                                </select>
+                            </div>
+                            <div class="field-group">
+                                <input type="text" id="localizacao" class="search-input" placeholder="Localização">
+                            </div>
+                            <div class="field-group">
+                                <select id="preco-min" class="search-input">
+                                    <option value="">Preço Mín.</option>
+                                    <option value="100000">R$ 100.000</option>
+                                    <option value="200000">R$ 200.000</option>
+                                    <option value="300000">R$ 300.000</option>
+                                    <option value="500000">R$ 500.000</option>
+                                </select>
+                            </div>
+                            <div class="field-group">
+                                <select id="preco-max" class="search-input">
+                                    <option value="">Preço Máx.</option>
+                                    <option value="300000">R$ 300.000</option>
+                                    <option value="500000">R$ 500.000</option>
+                                    <option value="800000">R$ 800.000</option>
+                                    <option value="1000000">R$ 1.000.000</option>
+                                </select>
+                            </div>
+                            <button class="search-btn" onclick="buscarImoveis()">
+                                <i class="fas fa-search"></i>
+                                Buscar
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Imóveis Section -->
+    <section id="imoveis" class="imoveis-section">
+        <div class="container">
+            <div class="section-header">
+                <h2>Imóveis Disponíveis</h2>
+                <p>Confira nossa seleção de imóveis para compra e aluguel</p>
+            </div>
+            
+            <!-- Filtros -->
+            <div class="filtros">
+                <div class="filtro-group">
+                    <label>Tipo:</label>
+                    <select id="filtro-tipo" onchange="filtrarImoveis()">
+                        <option value="">Todos</option>
+                        <option value="casa">Casa</option>
+                        <option value="apartamento">Apartamento</option>
+                        <option value="terreno">Terreno</option>
+                        <option value="comercial">Comercial</option>
+                    </select>
+                </div>
+                <div class="filtro-group">
+                    <label>Finalidade:</label>
+                    <select id="filtro-finalidade" onchange="filtrarImoveis()">
+                        <option value="">Todas</option>
+                        <option value="venda">Venda</option>
+                        <option value="aluguel">Aluguel</option>
+                    </select>
+                </div>
+                <div class="filtro-group">
+                    <label>Ordenar por:</label>
+                    <select id="filtro-ordem" onchange="filtrarImoveis()">
+                        <option value="recente">Mais Recentes</option>
+                        <option value="preco-menor">Menor Preço</option>
+                        <option value="preco-maior">Maior Preço</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Lista de Imóveis -->
+            <div id="lista-imoveis" class="imoveis-grid">
+                <!-- Os imóveis serão carregados dinamicamente via JavaScript -->
+            </div>
+
+            <!-- Loading -->
+            <div id="loading" class="loading" style="display: none;">
+                <i class="fas fa-spinner fa-spin"></i>
+                <p>Carregando imóveis...</p>
+            </div>
+
+            <!-- Sem resultados -->
+            <div id="sem-resultados" class="sem-resultados" style="display: none;">
+                <i class="fas fa-home"></i>
+                <h3>Nenhum imóvel encontrado</h3>
+                <p>Tente ajustar os filtros de busca</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Sobre Section -->
+    <section id="sobre" class="sobre-section">
+        <div class="container">
+            <div class="sobre-content">
+                <div class="sobre-text">
+                    <h2>Sobre a Marcelo Alves Imóveis</h2>
+                    <p>Com mais de 10 anos de experiência no mercado imobiliário, a Marcelo Alves Imóveis se destaca pela excelência no atendimento e pela confiança que construímos com nossos clientes.</p>
+                    <p>Nossa missão é conectar pessoas aos imóveis dos seus sonhos, oferecendo um serviço personalizado e transparente em todas as etapas do processo de compra, venda ou aluguel.</p>
+                    
+                    <div class="stats">
+                        <div class="stat-item">
+                            <div class="stat-number">500+</div>
+                            <div class="stat-label">Imóveis Vendidos</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-number">1000+</div>
+                            <div class="stat-label">Clientes Satisfeitos</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-number">10+</div>
+                            <div class="stat-label">Anos de Experiência</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="sobre-image">
+                    <img src="https://images.unsplash.com/photo-1560518883-ce09059eeffa?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80" alt="Sobre nós">
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Contato Section -->
+    <section id="contato" class="contato-section">
+        <div class="container">
+            <div class="section-header">
+                <h2>Entre em Contato</h2>
+                <p>Estamos prontos para ajudar você a encontrar o imóvel ideal</p>
+            </div>
+            
+            <div class="contato-content">
+                <div class="contato-info">
+                    <div class="info-item">
+                        <i class="fas fa-map-marker-alt"></i>
+                        <div>
+                            <h4>Endereço</h4>
+                            <p>Rua das Flores, 123<br>Centro - São Paulo/SP<br>CEP: 01234-567</p>
+                        </div>
+                    </div>
+                    <div class="info-item">
+                        <i class="fas fa-phone"></i>
+                        <div>
+                            <h4>Telefone</h4>
+                            <p>(11) 99999-9999</p>
+                        </div>
+                    </div>
+                    <div class="info-item">
+                        <i class="fas fa-envelope"></i>
+                        <div>
+                            <h4>E-mail</h4>
+                            <p>contato@marceloalvesimoveis.com.br</p>
+                        </div>
+                    </div>
+                    <div class="info-item">
+                        <i class="fab fa-whatsapp"></i>
+                        <div>
+                            <h4>WhatsApp</h4>
+                            <p>(11) 99999-9999</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="contato-form">
+                    <form id="form-contato">
+                        <div class="form-group">
+                            <input type="text" id="nome" name="nome" placeholder="Seu nome" required>
+                        </div>
+                        <div class="form-group">
+                            <input type="email" id="email" name="email" placeholder="Seu e-mail" required>
+                        </div>
+                        <div class="form-group">
+                            <input type="tel" id="telefone" name="telefone" placeholder="Seu telefone">
+                        </div>
+                        <div class="form-group">
+                            <select id="assunto" name="assunto" required>
+                                <option value="">Selecione o assunto</option>
+                                <option value="compra">Interesse em Compra</option>
+                                <option value="venda">Quero Vender</option>
+                                <option value="aluguel">Interesse em Aluguel</option>
+                                <option value="avaliacao">Avaliação de Imóvel</option>
+                                <option value="outros">Outros</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <textarea id="mensagem" name="mensagem" placeholder="Sua mensagem" rows="5" required></textarea>
+                        </div>
+                        <button type="submit" class="btn-enviar">
+                            <i class="fas fa-paper-plane"></i>
+                            Enviar Mensagem
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <div class="footer-brand">
+                        <img src="logo.png" alt="Marcelo Alves Imóveis" class="footer-logo">
+                        <h3>Marcelo Alves Imóveis</h3>
+                    </div>
+                    <p>Sua confiança é o nosso maior patrimônio. Há mais de 10 anos realizando sonhos no mercado imobiliário.</p>
+                    <div class="social-links">
+                        <a href="#" class="social-link"><i class="fab fa-facebook"></i></a>
+                        <a href="#" class="social-link"><i class="fab fa-instagram"></i></a>
+                        <a href="#" class="social-link"><i class="fab fa-linkedin"></i></a>
+                        <a href="#" class="social-link"><i class="fab fa-youtube"></i></a>
+                    </div>
+                </div>
+                
+                <div class="footer-section">
+                    <h4>Serviços</h4>
+                    <ul>
+                        <li><a href="#">Compra de Imóveis</a></li>
+                        <li><a href="#">Venda de Imóveis</a></li>
+                        <li><a href="#">Aluguel de Imóveis</a></li>
+                        <li><a href="#">Avaliação Imobiliária</a></li>
+                        <li><a href="#">Consultoria</a></li>
+                    </ul>
+                </div>
+                
+                <div class="footer-section">
+                    <h4>Tipos de Imóveis</h4>
+                    <ul>
+                        <li><a href="#">Casas</a></li>
+                        <li><a href="#">Apartamentos</a></li>
+                        <li><a href="#">Terrenos</a></li>
+                        <li><a href="#">Imóveis Comerciais</a></li>
+                        <li><a href="#">Imóveis de Luxo</a></li>
+                    </ul>
+                </div>
+                
+                <div class="footer-section">
+                    <h4>Contato</h4>
+                    <div class="footer-contact">
+                        <p><i class="fas fa-map-marker-alt"></i> Rua das Flores, 123 - Centro</p>
+                        <p><i class="fas fa-phone"></i> (11) 99999-9999</p>
+                        <p><i class="fas fa-envelope"></i> contato@marceloalvesimoveis.com.br</p>
+                        <p><i class="fab fa-whatsapp"></i> (11) 99999-9999</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="footer-bottom">
+                <p>&copy; 2024 Marcelo Alves Imóveis. Todos os direitos reservados. | CRECI: 123456-F</p>
+            </div>
+            <div class="footer-bottom">
+                <a href="./panel/index.html"><p>painel</p></a>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Modal de Detalhes do Imóvel -->
+    <div id="modal-imovel" class="modal" style="display: none;">
+        <div class="modal-content">
+            <span class="modal-close" onclick="fecharModal()">&times;</span>
+            <div id="modal-body">
+                <!-- Conteúdo será carregado dinamicamente -->
+            </div>
+        </div>
+    </div>
+
+    <!-- WhatsApp Float Button -->
+    <div class="whatsapp-float">
+        <a href="https://wa.me/5511999999999" target="_blank">
+            <i class="fab fa-whatsapp"></i>
+        </a>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
+

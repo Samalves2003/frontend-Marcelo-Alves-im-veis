@@ -1,0 +1,388 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Painel Administrativo - Marcelo Alves Imóveis</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <!-- Tela de Login -->
+    <div id="login-screen" class="login-screen">
+        <div class="login-container">
+            <div class="login-header">
+                <img src="../logo.png" alt="Marcelo Alves Imóveis" class="login-logo">
+                <h1>Painel Administrativo</h1>
+                <p>Faça login para acessar o sistema</p>
+            </div>
+            
+            <form id="login-form" class="login-form">
+                <div class="form-group">
+                    <label for="cpf">CPF</label>
+                    <input type="text" id="cpf" name="cpf" placeholder="000.000.000-00" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="senha">Senha</label>
+                    <div class="password-input">
+                        <input type="password" id="senha" name="senha" placeholder="Digite sua senha" required>
+                        <button type="button" class="toggle-password" onclick="togglePassword()">
+                            <i class="fas fa-eye"></i>
+                        </button>
+                    </div>
+                </div>
+                
+                <button type="submit" class="login-btn">
+                    <i class="fas fa-sign-in-alt"></i>
+                    Entrar
+                </button>
+                
+                <div id="login-error" class="error-message" style="display: none;"></div>
+            </form>
+            
+            <div class="login-footer">
+                <p>Usuário padrão: <strong>123.456.789-01</strong></p>
+                <p>Senha padrão: <strong>admin123</strong></p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Painel Principal -->
+    <div id="admin-panel" class="admin-panel" style="display: none;">
+        <!-- Header do Painel -->
+        <header class="panel-header">
+            <div class="header-left">
+                <img src="../logo.png" alt="Marcelo Alves Imóveis" class="panel-logo">
+                <h1>Painel Administrativo</h1>
+            </div>
+            <div class="header-right">
+                <div class="user-info">
+                    <i class="fas fa-user-circle"></i>
+                    <span id="user-name">Usuário</span>
+                </div>
+                <button class="logout-btn" onclick="logout()">
+                    <i class="fas fa-sign-out-alt"></i>
+                    Sair
+                </button>
+            </div>
+        </header>
+
+        <!-- Navegação -->
+        <nav class="panel-nav">
+            <button class="nav-btn active" data-section="dashboard" onclick="showSection('dashboard')">
+                <i class="fas fa-chart-dashboard"></i>
+                Dashboard
+            </button>
+            <button class="nav-btn" data-section="imoveis" onclick="showSection('imoveis')">
+                <i class="fas fa-home"></i>
+                Imóveis
+            </button>
+            <button class="nav-btn" data-section="contatos" onclick="showSection('contatos')">
+                <i class="fas fa-envelope"></i>
+                Contatos
+            </button>
+        </nav>
+
+        <!-- Conteúdo Principal -->
+        <main class="panel-content">
+            <!-- Dashboard -->
+            <section id="dashboard-section" class="content-section active">
+                <div class="section-header">
+                    <h2>Dashboard</h2>
+                    <p>Visão geral do sistema</p>
+                </div>
+                
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-icon">
+                            <i class="fas fa-home"></i>
+                        </div>
+                        <div class="stat-info">
+                            <div class="stat-number" id="total-imoveis">0</div>
+                            <div class="stat-label">Total de Imóveis</div>
+                        </div>
+                    </div>
+                    
+                    <div class="stat-card">
+                        <div class="stat-icon">
+                            <i class="fas fa-eye"></i>
+                        </div>
+                        <div class="stat-info">
+                            <div class="stat-number" id="imoveis-disponiveis">0</div>
+                            <div class="stat-label">Imóveis Disponíveis</div>
+                        </div>
+                    </div>
+                    
+                    <div class="stat-card">
+                        <div class="stat-icon">
+                            <i class="fas fa-dollar-sign"></i>
+                        </div>
+                        <div class="stat-info">
+                            <div class="stat-number" id="imoveis-venda">0</div>
+                            <div class="stat-label">Para Venda</div>
+                        </div>
+                    </div>
+                    
+                    <div class="stat-card">
+                        <div class="stat-icon">
+                            <i class="fas fa-key"></i>
+                        </div>
+                        <div class="stat-info">
+                            <div class="stat-number" id="imoveis-aluguel">0</div>
+                            <div class="stat-label">Para Aluguel</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="recent-activity">
+                    <h3>Atividade Recente</h3>
+                    <div id="recent-activity-list" class="activity-list">
+                        <!-- Atividades serão carregadas dinamicamente -->
+                    </div>
+                </div>
+            </section>
+
+            <!-- Imóveis -->
+            <section id="imoveis-section" class="content-section">
+                <div class="section-header">
+                    <h2>Gerenciar Imóveis</h2>
+                    <button class="btn-primary" onclick="showAddImovelModal()">
+                        <i class="fas fa-plus"></i>
+                        Novo Imóvel
+                    </button>
+                </div>
+                
+                <div class="filters-bar">
+                    <div class="filter-group">
+                        <label>Status:</label>
+                        <select id="filter-status" onchange="filterImoveis()">
+                            <option value="">Todos</option>
+                            <option value="disponivel">Disponível</option>
+                            <option value="alugado">Alugado</option>
+                            <option value="vendido">Vendido</option>
+                        </select>
+                    </div>
+                    <div class="filter-group">
+                        <label>Tipo:</label>
+                        <select id="filter-tipo" onchange="filterImoveis()">
+                            <option value="">Todos</option>
+                            <option value="casa">Casa</option>
+                            <option value="apartamento">Apartamento</option>
+                            <option value="terreno">Terreno</option>
+                            <option value="comercial">Comercial</option>
+                        </select>
+                    </div>
+                    <div class="filter-group">
+                        <label>Habilitado:</label>
+                        <select id="filter-habilitado" onchange="filterImoveis()">
+                            <option value="">Todos</option>
+                            <option value="true">Sim</option>
+                            <option value="false">Não</option>
+                        </select>
+                    </div>
+                    <div class="search-group">
+                        <input type="text" id="search-imoveis" placeholder="Buscar imóveis..." onkeyup="filterImoveis()">
+                        <i class="fas fa-search"></i>
+                    </div>
+                </div>
+                
+                <div class="table-container">
+                    <table id="imoveis-table" class="data-table">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Título</th>
+                                <th>Tipo</th>
+                                <th>Finalidade</th>
+                                <th>Preço</th>
+                                <th>Status</th>
+                                <th>Habilitado</th>
+                                <th>Ações</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!-- Dados serão carregados dinamicamente -->
+                        </tbody>
+                    </table>
+                </div>
+                
+                <div id="no-imoveis" class="no-data" style="display: none;">
+                    <i class="fas fa-home"></i>
+                    <h3>Nenhum imóvel encontrado</h3>
+                    <p>Adicione o primeiro imóvel ao sistema</p>
+                </div>
+            </section>
+
+            <!-- Contatos -->
+            <section id="contatos-section" class="content-section">
+                <div class="section-header">
+                    <h2>Contatos Recebidos</h2>
+                    <button class="btn-secondary" onclick="loadContatos()">
+                        <i class="fas fa-refresh"></i>
+                        Atualizar
+                    </button>
+                </div>
+                
+                <div class="table-container">
+                    <table id="contatos-table" class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Data</th>
+                                <th>Nome</th>
+                                <th>Email</th>
+                                <th>Telefone</th>
+                                <th>Assunto</th>
+                                <th>Ações</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!-- Dados serão carregados dinamicamente -->
+                        </tbody>
+                    </table>
+                </div>
+                
+                <div id="no-contatos" class="no-data" style="display: none;">
+                    <i class="fas fa-envelope"></i>
+                    <h3>Nenhum contato recebido</h3>
+                    <p>Os contatos do formulário aparecerão aqui</p>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- Modal de Imóvel -->
+    <div id="imovel-modal" class="modal" style="display: none;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="modal-title">Novo Imóvel</h3>
+                <button class="modal-close" onclick="closeImovelModal()">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            
+            <form id="imovel-form" class="modal-form">
+                <input type="hidden" id="imovel-id">
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="imovel-titulo">Título *</label>
+                        <input type="text" id="imovel-titulo" name="titulo" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="imovel-tipo">Tipo *</label>
+                        <select id="imovel-tipo" name="tipo" required>
+                            <option value="">Selecione</option>
+                            <option value="casa">Casa</option>
+                            <option value="apartamento">Apartamento</option>
+                            <option value="terreno">Terreno</option>
+                            <option value="comercial">Comercial</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="imovel-finalidade">Finalidade *</label>
+                        <select id="imovel-finalidade" name="finalidade" required>
+                            <option value="">Selecione</option>
+                            <option value="venda">Venda</option>
+                            <option value="aluguel">Aluguel</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="imovel-preco">Preço *</label>
+                        <input type="number" id="imovel-preco" name="preco" step="0.01" required>
+                    </div>
+                </div>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="imovel-quartos">Quartos</label>
+                        <input type="number" id="imovel-quartos" name="quartos" min="0">
+                    </div>
+                    <div class="form-group">
+                        <label for="imovel-banheiros">Banheiros</label>
+                        <input type="number" id="imovel-banheiros" name="banheiros" min="0">
+                    </div>
+                    <div class="form-group">
+                        <label for="imovel-area">Área (m²)</label>
+                        <input type="number" id="imovel-area" name="area" step="0.01" min="0">
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="imovel-endereco">Endereço</label>
+                    <input type="text" id="imovel-endereco" name="endereco">
+                </div>
+                
+                <div class="form-group">
+                    <label for="imovel-descricao">Descrição</label>
+                    <textarea id="imovel-descricao" name="descricao" rows="4"></textarea>
+                </div>
+                
+                <div class="form-group">
+                    <label for="imovel-fotos">URLs das Fotos (uma por linha)</label>
+                    <textarea id="imovel-fotos" name="fotos" rows="3" placeholder="https://exemplo.com/foto1.jpg&#10;https://exemplo.com/foto2.jpg"></textarea>
+                </div>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="imovel-status">Status</label>
+                        <select id="imovel-status" name="status">
+                            <option value="disponivel">Disponível</option>
+                            <option value="alugado">Alugado</option>
+                            <option value="vendido">Vendido</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="checkbox-label">
+                            <input type="checkbox" id="imovel-habilitado" name="habilitado" checked>
+                            <span class="checkmark"></span>
+                            Habilitado
+                        </label>
+                    </div>
+                </div>
+                
+                <div class="modal-actions">
+                    <button type="button" class="btn-secondary" onclick="closeImovelModal()">
+                        Cancelar
+                    </button>
+                    <button type="submit" class="btn-primary">
+                        <i class="fas fa-save"></i>
+                        Salvar
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal de Contato -->
+    <div id="contato-modal" class="modal" style="display: none;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Detalhes do Contato</h3>
+                <button class="modal-close" onclick="closeContatoModal()">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            
+            <div id="contato-details" class="modal-body">
+                <!-- Detalhes serão carregados dinamicamente -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Loading Overlay -->
+    <div id="loading-overlay" class="loading-overlay" style="display: none;">
+        <div class="loading-spinner">
+            <i class="fas fa-spinner fa-spin"></i>
+            <p>Carregando...</p>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
+
