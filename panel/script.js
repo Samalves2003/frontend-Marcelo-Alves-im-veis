@@ -152,10 +152,15 @@ function setupForms() {
         saveImovel();
     });
     
-    // Event listener para busca de imóveis
+    // Event listener para busca de imóveis - usando tanto input quanto keyup para garantir funcionamento
     const searchInput = document.getElementById('search-imoveis');
     if (searchInput) {
         searchInput.addEventListener('input', function() {
+            console.log('Busca ativada:', this.value); // Debug
+            filterImoveis();
+        });
+        searchInput.addEventListener('keyup', function() {
+            console.log('Busca keyup:', this.value); // Debug
             filterImoveis();
         });
     }
@@ -166,6 +171,7 @@ function setupForms() {
         const element = document.getElementById(id);
         if (element) {
             element.addEventListener('change', function() {
+                console.log('Filtro alterado:', id, this.value); // Debug
                 filterImoveis();
             });
         }
@@ -354,32 +360,57 @@ function filterImoveis() {
     const statusFilter = document.getElementById('filter-status').value;
     const tipoFilter = document.getElementById('filter-tipo').value;
     const habilitadoFilter = document.getElementById('filter-habilitado').value;
-    const searchTerm = document.getElementById('search-imoveis').value.toLowerCase();
+    const searchTerm = document.getElementById('search-imoveis').value.toLowerCase().trim();
+    
+    console.log('Filtros aplicados:', {
+        status: statusFilter,
+        tipo: tipoFilter,
+        habilitado: habilitadoFilter,
+        busca: searchTerm
+    });
+    
+    console.log('Total de imóveis antes do filtro:', imoveisData.length);
     
     let filteredImoveis = [...imoveisData];
     
     if (statusFilter) {
         filteredImoveis = filteredImoveis.filter(i => i.status === statusFilter);
+        console.log('Após filtro status:', filteredImoveis.length);
     }
     
     if (tipoFilter) {
         filteredImoveis = filteredImoveis.filter(i => i.tipo === tipoFilter);
+        console.log('Após filtro tipo:', filteredImoveis.length);
     }
     
     if (habilitadoFilter) {
         const habilitado = habilitadoFilter === 'true';
         filteredImoveis = filteredImoveis.filter(i => i.habilitado === habilitado);
+        console.log('Após filtro habilitado:', filteredImoveis.length);
     }
     
     if (searchTerm) {
-        filteredImoveis = filteredImoveis.filter(i => 
-            i.titulo.toLowerCase().includes(searchTerm) ||
-            i.endereco.toLowerCase().includes(searchTerm) ||
-            i.bairro.toLowerCase().includes(searchTerm) ||
-            i.descricao.toLowerCase().includes(searchTerm)
-        );
+        filteredImoveis = filteredImoveis.filter(i => {
+            const titulo = (i.titulo || '').toLowerCase();
+            const endereco = (i.endereco || '').toLowerCase();
+            const bairro = (i.bairro || '').toLowerCase();
+            const descricao = (i.descricao || '').toLowerCase();
+            
+            const match = titulo.includes(searchTerm) ||
+                         endereco.includes(searchTerm) ||
+                         bairro.includes(searchTerm) ||
+                         descricao.includes(searchTerm);
+            
+            if (match) {
+                console.log('Imóvel encontrado na busca:', i.titulo);
+            }
+            
+            return match;
+        });
+        console.log('Após filtro de busca:', filteredImoveis.length);
     }
     
+    console.log('Imóveis filtrados final:', filteredImoveis.length);
     renderImoveisTable(filteredImoveis);
 }
 
