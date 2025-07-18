@@ -1,5 +1,5 @@
 // Configuração da API
-const API_BASE_URL = 'https://marcelo-alves-imoveis-noehnt4m6-samuels-projects-f143a1ab.vercel.app/api';
+const API_BASE_URL = 'https://marcelo-alves-imoveis-duptafyms-samuels-projects-f143a1ab.vercel.app/api';
 
 
 // Estado global da aplicação
