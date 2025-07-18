@@ -404,6 +404,7 @@ function filtrarImoveis() {
 function atualizarFiltros() {
     filtrosAtivos.tipo = document.getElementById('filtro-tipo').value;
     filtrosAtivos.finalidade = document.getElementById('filtro-finalidade').value;
+    filtrosAtivos.bairro = document.getElementById('filtro-bairro').value;
     filtrosAtivos.ordem = document.getElementById('filtro-ordem').value;
     
     filtrarImoveis();

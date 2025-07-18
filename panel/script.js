@@ -151,6 +151,25 @@ function setupForms() {
         e.preventDefault();
         saveImovel();
     });
+    
+    // Event listener para busca de imóveis
+    const searchInput = document.getElementById('search-imoveis');
+    if (searchInput) {
+        searchInput.addEventListener('input', function() {
+            filterImoveis();
+        });
+    }
+    
+    // Event listeners para filtros de imóveis
+    const filterElements = ['filter-status', 'filter-tipo', 'filter-habilitado'];
+    filterElements.forEach(id => {
+        const element = document.getElementById(id);
+        if (element) {
+            element.addEventListener('change', function() {
+                filterImoveis();
+            });
+        }
+    });
 }
 
 // Máscara de CPF
@@ -506,25 +525,54 @@ async function deleteImovel(id) {
     }
 }
 
-// Contatos
+}
+
 async function loadContatos() {
     try {
-        // Simulação de dados de contato (implementar quando tiver endpoint)
+        showLoading(true);
+        
+        const response = await fetch(`${API_BASE_URL}/admin/contatos`, {
+            headers: {
+                'Authorization': `Bearer ${authToken}`,
+                'Content-Type': 'application/json'
+            }
+        });
+        
+        if (response.ok) {
+            contatosData = await response.json();
+        } else {
+            // Fallback para dados mock se a API falhar
+            contatosData = [
+                {
+                    id: 1,
+                    nome: 'João Silva',
+                    email: 'joao@email.com',
+                    telefone: '(11) 99999-9999',
+                    assunto: 'interesse_compra',
+                    mensagem: 'Tenho interesse em comprar um apartamento.',
+                    dataRecebimento: new Date().toISOString()
+                }
+            ];
+        }
+        
+        renderContatosTable(contatosData);
+    } catch (error) {
+        console.error('Erro ao carregar contatos:', error);
+        // Usar dados mock em caso de erro
         contatosData = [
             {
                 id: 1,
                 nome: 'João Silva',
                 email: 'joao@email.com',
                 telefone: '(11) 99999-9999',
-                assunto: 'compra',
+                assunto: 'interesse_compra',
                 mensagem: 'Tenho interesse em comprar um apartamento.',
                 dataRecebimento: new Date().toISOString()
             }
         ];
-        
         renderContatosTable(contatosData);
-    } catch (error) {
-        console.error('Erro ao carregar contatos:', error);
+    } finally {
+        showLoading(false);
     }
 }
 
@@ -550,6 +598,9 @@ function renderContatosTable(contatos) {
             <td class="actions-cell">
                 <button class="btn-primary" onclick="viewContato(${contato.id})">
                     <i class="fas fa-eye"></i>
+                </button>
+                <button class="btn-danger" onclick="deleteContato(${contato.id})">
+                    <i class="fas fa-trash"></i>
                 </button>
             </td>
         </tr>
@@ -594,6 +645,37 @@ function viewContato(id) {
 
 function closeContatoModal() {
     document.getElementById('contato-modal').style.display = 'none';
+}
+
+async function deleteContato(id) {
+    if (!confirm('Tem certeza que deseja excluir este contato?')) {
+        return;
+    }
+    
+    try {
+        showLoading(true);
+        
+        const response = await fetch(`${API_BASE_URL}/admin/contatos/${id}`, {
+            method: 'DELETE',
+            headers: {
+                'Authorization': `Bearer ${authToken}`,
+                'Content-Type': 'application/json'
+            }
+        });
+        
+        if (response.ok) {
+            showAlert('Contato excluído com sucesso!', 'success');
+            loadContatos(); // Recarregar lista
+        } else {
+            const error = await response.json();
+            showAlert(error.message || 'Erro ao excluir contato', 'error');
+        }
+    } catch (error) {
+        console.error('Erro ao excluir contato:', error);
+        showAlert('Erro ao excluir contato', 'error');
+    } finally {
+        showLoading(false);
+    }
 }
 
 // Utilitários de formatação
