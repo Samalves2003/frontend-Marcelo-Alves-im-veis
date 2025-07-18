@@ -664,11 +664,11 @@ async function deleteContato(id) {
         });
         
         if (response.ok) {
-            showAlert('Contato excluído com sucesso!', 'success');
+            showSuccess("Contato excluído com sucesso!");
             loadContatos(); // Recarregar lista
         } else {
             const error = await response.json();
-            showAlert(error.message || 'Erro ao excluir contato', 'error');
+            showError(error.message || "Erro ao excluir contato");
         }
     } catch (error) {
         console.error('Erro ao excluir contato:', error);
@@ -740,13 +740,18 @@ function showLoading(show) {
 }
 
 function showError(message) {
-    const errorDiv = document.getElementById('login-error');
-    errorDiv.textContent = message;
-    errorDiv.style.display = 'block';
-    
-    setTimeout(() => {
-        errorDiv.style.display = 'none';
-    }, 5000);
+    const errorDiv = document.getElementById("login-error");
+    if (errorDiv) {
+        errorDiv.textContent = message;
+        errorDiv.style.display = "block";
+        
+        setTimeout(() => {
+            errorDiv.style.display = "none";
+        }, 5000);
+    } else {
+        console.error("Elemento de erro de login não encontrado:", message);
+        alert(message); // Fallback para alert se o elemento não for encontrado
+    }
 }
 
 function hideError() {
