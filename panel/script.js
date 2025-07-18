@@ -1,5 +1,8 @@
 // Configuração da API
-const API_BASE_URL = 'https://backend-marcelo-alves-sistema.onrender.com';
+const API_BASE_URL = 'https://marcelo-alves-imoveis-mr3uyiooy-samuels-projects-f143a1ab.vercel.app/api';
+
+
+
 
 // Estado global da aplicação
 let authToken = localStorage.getItem('admin_token');
