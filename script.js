@@ -1,9 +1,12 @@
 // Configuração da API
-const API_BASE_URL = 'https://marcelo-alves-imoveis-duptafyms-samuels-projects-f143a1ab.vercel.app/api';
+const API_BASE_URL = 'https://marcelo-alves-imoveis-h8lghn1al-samuels-projects-f143a1ab.vercel.app/api';
 
 
 // Estado global da aplicação
 let imoveisData = [];
+let paginaAtual = 1;
+let totalPaginas = 1;
+let itensPorPagina = 9;
 let filtrosAtivos = {
     tipo: '',
     finalidade: '',
@@ -187,26 +190,37 @@ function buscarImoveis() {
 }
 
 // Carregar imóveis do servidor
-async function carregarImoveis() {
+async function carregarImoveis(pagina = 1) {
     const loading = document.getElementById('loading');
     const listaImoveis = document.getElementById('lista-imoveis');
     const semResultados = document.getElementById('sem-resultados');
+    const paginacao = document.getElementById('paginacao');
     
     try {
         loading.style.display = 'block';
         semResultados.style.display = 'none';
+        paginacao.style.display = 'none';
         
-        // Buscar dados da API real
-        const response = await fetch(`${API_BASE_URL}/imoveis`);
+        console.log(`Carregando página ${pagina} com ${itensPorPagina} itens por página`); // Debug
+        
+        // Buscar dados da API real com paginação
+        const response = await fetch(`${API_BASE_URL}/imoveis?page=${pagina}&limit=${itensPorPagina}`);
         
         if (!response.ok) {
             throw new Error(`Erro HTTP: ${response.status}`);
         }
         
-        imoveisData = await response.json();
+        const data = await response.json();
+        console.log('Dados recebidos da API:', data); // Debug
+        
+        // Atualizar estado global
+        imoveisData = data.imoveis;
+        paginaAtual = data.pagination.currentPage;
+        totalPaginas = data.pagination.totalPages;
         
         loading.style.display = 'none';
         renderizarImoveis(imoveisData);
+        renderizarPaginacao(data.pagination);
         carregarBairros(); // Carregar opções de bairro
         
     } catch (error) {
@@ -942,4 +956,122 @@ const modalStyles = `
 
 // Adicionar estilos ao head
 document.head.insertAdjacentHTML('beforeend', modalStyles);
+
+
+
+// Funções de Paginação
+function renderizarPaginacao(pagination) {
+    const paginacaoDiv = document.getElementById('paginacao');
+    const numerosDiv = document.getElementById('numeros-pagina');
+    const btnAnterior = document.getElementById('btn-anterior');
+    const btnProximo = document.getElementById('btn-proximo');
+    
+    // Mostrar paginação apenas se houver mais de uma página
+    if (pagination.totalPages <= 1) {
+        paginacaoDiv.style.display = 'none';
+        return;
+    }
+    
+    paginacaoDiv.style.display = 'flex';
+    
+    // Configurar botões anterior/próximo
+    btnAnterior.disabled = !pagination.hasPrevPage;
+    btnProximo.disabled = !pagination.hasNextPage;
+    
+    // Limpar números de página
+    numerosDiv.innerHTML = '';
+    
+    // Calcular quais páginas mostrar
+    const maxPaginas = 5; // Máximo de números de página a mostrar
+    let inicio = Math.max(1, pagination.currentPage - Math.floor(maxPaginas / 2));
+    let fim = Math.min(pagination.totalPages, inicio + maxPaginas - 1);
+    
+    // Ajustar início se necessário
+    if (fim - inicio + 1 < maxPaginas) {
+        inicio = Math.max(1, fim - maxPaginas + 1);
+    }
+    
+    // Adicionar primeira página se necessário
+    if (inicio > 1) {
+        adicionarNumeroPagina(1, pagination.currentPage);
+        if (inicio > 2) {
+            numerosDiv.insertAdjacentHTML('beforeend', '<span class="numero-pagina-ellipsis">...</span>');
+        }
+    }
+    
+    // Adicionar páginas do intervalo
+    for (let i = inicio; i <= fim; i++) {
+        adicionarNumeroPagina(i, pagination.currentPage);
+    }
+    
+    // Adicionar última página se necessário
+    if (fim < pagination.totalPages) {
+        if (fim < pagination.totalPages - 1) {
+            numerosDiv.insertAdjacentHTML('beforeend', '<span class="numero-pagina-ellipsis">...</span>');
+        }
+        adicionarNumeroPagina(pagination.totalPages, pagination.currentPage);
+    }
+}
+
+function adicionarNumeroPagina(numero, paginaAtual) {
+    const numerosDiv = document.getElementById('numeros-pagina');
+    const isAtivo = numero === paginaAtual;
+    
+    const numeroElement = document.createElement('div');
+    numeroElement.className = `numero-pagina ${isAtivo ? 'ativo' : ''}`;
+    numeroElement.textContent = numero;
+    numeroElement.onclick = () => irParaPagina(numero);
+    
+    numerosDiv.appendChild(numeroElement);
+}
+
+function irParaPagina(pagina) {
+    if (pagina < 1 || pagina > totalPaginas || pagina === paginaAtual) {
+        return;
+    }
+    
+    console.log(`Navegando para página ${pagina}`); // Debug
+    
+    // Scroll para o topo da seção de imóveis
+    const imoveisSection = document.getElementById('imoveis');
+    if (imoveisSection) {
+        imoveisSection.scrollIntoView({ behavior: 'smooth' });
+    }
+    
+    // Carregar nova página
+    carregarImoveis(pagina);
+}
+
+// Adicionar estilos para ellipsis
+const ellipsisStyles = `
+<style>
+.numero-pagina-ellipsis {
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #666;
+    font-weight: 500;
+}
+</style>
+`;
+
+// Adicionar estilos ao head se ainda não existir
+if (!document.querySelector('style[data-ellipsis]')) {
+    const style = document.createElement('style');
+    style.setAttribute('data-ellipsis', 'true');
+    style.textContent = `
+.numero-pagina-ellipsis {
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #666;
+    font-weight: 500;
+}
+`;
+    document.head.appendChild(style);
+}
 

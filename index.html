@@ -153,6 +153,19 @@
                 <h3>Nenhum imóvel encontrado</h3>
                 <p>Tente ajustar os filtros de busca</p>
             </div>
+
+            <!-- Paginação -->
+            <div id="paginacao" class="paginacao" style="display: none;">
+                <button id="btn-anterior" class="btn-paginacao" onclick="irParaPagina(paginaAtual - 1)">
+                    <i class="fas fa-chevron-left"></i>
+                </button>
+                <div id="numeros-pagina" class="numeros-pagina">
+                    <!-- Números das páginas serão inseridos dinamicamente -->
+                </div>
+                <button id="btn-proximo" class="btn-paginacao" onclick="irParaPagina(paginaAtual + 1)">
+                    <i class="fas fa-chevron-right"></i>
+                </button>
+            </div>
         </div>
     </section>
 

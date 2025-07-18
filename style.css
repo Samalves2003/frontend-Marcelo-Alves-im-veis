@@ -765,7 +765,79 @@ body {
     transform: scale(1.1);
 }
 
-/* Responsive Design */
+/* Paginação */
+.paginacao {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+    margin-top: 3rem;
+    padding: 2rem 0;
+}
+
+.btn-paginacao {
+    width: 40px;
+    height: 40px;
+    border: 2px solid #ddd;
+    background: white;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    color: #666;
+}
+
+.btn-paginacao:hover:not(:disabled) {
+    border-color: #d4af37;
+    color: #d4af37;
+    transform: translateY(-2px);
+}
+
+.btn-paginacao:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.numeros-pagina {
+    display: flex;
+    gap: 5px;
+}
+
+.numero-pagina {
+    width: 40px;
+    height: 40px;
+    border: 2px solid #ddd;
+    background: white;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    color: #666;
+    font-weight: 500;
+    text-decoration: none;
+}
+
+.numero-pagina:hover {
+    border-color: #d4af37;
+    color: #d4af37;
+    transform: translateY(-2px);
+}
+
+.numero-pagina.ativo {
+    background: #d4af37;
+    border-color: #d4af37;
+    color: white;
+}
+
+.numero-pagina.ativo:hover {
+    transform: none;
+}
+
+/* Responsive */
 @media (max-width: 768px) {
     .header .container {
         flex-direction: column;
