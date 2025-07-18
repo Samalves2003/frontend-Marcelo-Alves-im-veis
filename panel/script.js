@@ -668,6 +668,8 @@ async function deleteContato(id) {
     try {
         showLoading(true);
         
+        console.log('Excluindo contato ID:', id); // Debug
+        
         const response = await fetch(`${API_BASE_URL}/admin/contatos/${id}`, {
             method: 'DELETE',
             headers: {
@@ -676,16 +678,22 @@ async function deleteContato(id) {
             }
         });
         
+        console.log('Resposta da exclusão:', response.status); // Debug
+        
         if (response.ok) {
             showSuccess("Contato excluído com sucesso!");
-            loadContatos(); // Recarregar lista
+            
+            // Atualizar lista imediatamente
+            await loadContatos();
+            
+            console.log('Lista de contatos atualizada após exclusão'); // Debug
         } else {
             const error = await response.json();
             showError(error.message || "Erro ao excluir contato");
         }
     } catch (error) {
         console.error('Erro ao excluir contato:', error);
-        showAlert('Erro ao excluir contato', 'error');
+        showError('Erro ao excluir contato');
     } finally {
         showLoading(false);
     }
