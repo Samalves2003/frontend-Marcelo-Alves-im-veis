@@ -168,12 +168,14 @@ async function carregarImoveis() {
         loading.style.display = 'block';
         semResultados.style.display = 'none';
         
-        // Simular dados enquanto o backend não está pronto
-        imoveisData = await getImoveisMock();
+        // Buscar dados da API real
+        const response = await fetch(`${API_BASE_URL}/imoveis`);
         
-        // TODO: Substituir por chamada real da API quando o backend estiver pronto
-        // const response = await fetch(`${API_BASE_URL}/imoveis`);
-        // imoveisData = await response.json();
+        if (!response.ok) {
+            throw new Error(`Erro HTTP: ${response.status}`);
+        }
+        
+        imoveisData = await response.json();
         
         loading.style.display = 'none';
         renderizarImoveis(imoveisData);
@@ -181,7 +183,11 @@ async function carregarImoveis() {
     } catch (error) {
         console.error('Erro ao carregar imóveis:', error);
         loading.style.display = 'none';
-        semResultados.style.display = 'block';
+        
+        // Fallback para dados mock em caso de erro
+        console.log('Usando dados mock como fallback...');
+        imoveisData = await getImoveisMock();
+        renderizarImoveis(imoveisData);
     }
 }
 
@@ -286,6 +292,11 @@ async function getImoveisMock() {
 
 // Filtrar imóveis
 function filtrarImoveis() {
+    // Atualizar filtros ativos com os valores atuais dos selects
+    filtrosAtivos.tipo = document.getElementById('filtro-tipo').value;
+    filtrosAtivos.finalidade = document.getElementById('filtro-finalidade').value;
+    filtrosAtivos.ordem = document.getElementById('filtro-ordem').value;
+    
     let imoveisFiltrados = [...imoveisData];
     
     // Filtrar por tipo
@@ -333,7 +344,13 @@ function filtrarImoveis() {
             break;
         case 'recente':
         default:
-            imoveisFiltrados.sort((a, b) => new Date(b.dataPublicacao) - new Date(a.dataPublicacao));
+            // Ordenar por data de criação ou ID (mais recente primeiro)
+            imoveisFiltrados.sort((a, b) => {
+                if (a.dataPublicacao && b.dataPublicacao) {
+                    return new Date(b.dataPublicacao) - new Date(a.dataPublicacao);
+                }
+                return b.id - a.id; // Fallback para ID
+            });
             break;
     }
     
