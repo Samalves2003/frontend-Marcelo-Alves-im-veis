@@ -525,8 +525,6 @@ async function deleteImovel(id) {
     }
 }
 
-}
-
 async function loadContatos() {
     try {
         showLoading(true);
