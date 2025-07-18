@@ -7,6 +7,7 @@ let imoveisData = [];
 let filtrosAtivos = {
     tipo: '',
     finalidade: '',
+    bairro: '',
     ordem: 'recente'
 };
 
@@ -179,6 +180,7 @@ async function carregarImoveis() {
         
         loading.style.display = 'none';
         renderizarImoveis(imoveisData);
+        carregarBairros(); // Carregar opções de bairro
         
     } catch (error) {
         console.error('Erro ao carregar imóveis:', error);
@@ -188,6 +190,7 @@ async function carregarImoveis() {
         console.log('Usando dados mock como fallback...');
         imoveisData = await getImoveisMock();
         renderizarImoveis(imoveisData);
+        carregarBairros(); // Carregar opções de bairro mesmo com mock
     }
 }
 
@@ -205,6 +208,7 @@ async function getImoveisMock() {
             banheiros: 2,
             area: 120,
             endereco: 'Jardim Atlântico, São Paulo/SP',
+            bairro: 'Jardim Atlântico',
             fotos: [
                 'https://images.unsplash.com/photo-1568605114967-8130f3a36994?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
                 'https://images.unsplash.com/photo-1564013799919-ab600027ffc6?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80'
@@ -224,6 +228,7 @@ async function getImoveisMock() {
             banheiros: 1,
             area: 65,
             endereco: 'Centro, São Paulo/SP',
+            bairro: 'Centro',
             fotos: [
                 'https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
                 'https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80'
@@ -243,6 +248,7 @@ async function getImoveisMock() {
             banheiros: 3,
             area: 250,
             endereco: 'Alphaville, Barueri/SP',
+            bairro: 'Alphaville',
             fotos: [
                 'https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
                 'https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80'
@@ -262,6 +268,7 @@ async function getImoveisMock() {
             banheiros: 0,
             area: 300,
             endereco: 'Vila Mariana, São Paulo/SP',
+            bairro: 'Vila Mariana',
             fotos: [
                 'https://images.unsplash.com/photo-1500382017468-9049fed747ef?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80'
             ],
@@ -280,6 +287,7 @@ async function getImoveisMock() {
             banheiros: 1,
             area: 80,
             endereco: 'Rua Augusta, São Paulo/SP',
+            bairro: 'Consolação',
             fotos: [
                 'https://images.unsplash.com/photo-1441986300917-64674bd600d8?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80'
             ],
@@ -295,6 +303,7 @@ function filtrarImoveis() {
     // Atualizar filtros ativos com os valores atuais dos selects
     filtrosAtivos.tipo = document.getElementById('filtro-tipo').value;
     filtrosAtivos.finalidade = document.getElementById('filtro-finalidade').value;
+    filtrosAtivos.bairro = document.getElementById('filtro-bairro').value;
     filtrosAtivos.ordem = document.getElementById('filtro-ordem').value;
     
     let imoveisFiltrados = [...imoveisData];
@@ -310,6 +319,13 @@ function filtrarImoveis() {
     if (filtrosAtivos.finalidade) {
         imoveisFiltrados = imoveisFiltrados.filter(imovel => 
             imovel.finalidade === filtrosAtivos.finalidade
+        );
+    }
+    
+    // Filtrar por bairro
+    if (filtrosAtivos.bairro) {
+        imoveisFiltrados = imoveisFiltrados.filter(imovel => 
+            imovel.bairro === filtrosAtivos.bairro
         );
     }
     
@@ -366,6 +382,26 @@ function atualizarFiltros() {
     filtrarImoveis();
 }
 
+// Carregar opções de bairro dinamicamente
+function carregarBairros() {
+    const selectBairro = document.getElementById('filtro-bairro');
+    
+    // Obter bairros únicos dos imóveis
+    const bairros = [...new Set(imoveisData.map(imovel => imovel.bairro).filter(bairro => bairro))];
+    bairros.sort(); // Ordenar alfabeticamente
+    
+    // Limpar opções existentes (exceto a primeira)
+    selectBairro.innerHTML = '<option value="">Todos os Bairros</option>';
+    
+    // Adicionar opções de bairro
+    bairros.forEach(bairro => {
+        const option = document.createElement('option');
+        option.value = bairro;
+        option.textContent = bairro;
+        selectBairro.appendChild(option);
+    });
+}
+
 // Renderizar imóveis na tela
 function renderizarImoveis(imoveis) {
     const listaImoveis = document.getElementById('lista-imoveis');
@@ -390,7 +426,7 @@ function renderizarImoveis(imoveis) {
                     ${formatarPreco(imovel.preco, imovel.finalidade)}
                 </div>
                 <h3 class="imovel-titulo">${imovel.titulo}</h3>
-                <div class="imovel-tipo">${formatarTipo(imovel.tipo)} • ${imovel.endereco}</div>
+                <div class="imovel-tipo">${formatarTipo(imovel.tipo)} • ${imovel.bairro ? imovel.bairro + ' • ' : ''}${imovel.endereco}</div>
                 <p class="imovel-descricao">${imovel.descricao}</p>
                 ${imovel.tipo !== 'terreno' && imovel.tipo !== 'comercial' ? `
                     <div class="imovel-detalhes">

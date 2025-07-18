@@ -120,6 +120,13 @@
                     </select>
                 </div>
                 <div class="filtro-group">
+                    <label>Bairro:</label>
+                    <select id="filtro-bairro" onchange="filtrarImoveis()">
+                        <option value="">Todos os Bairros</option>
+                        <!-- Opções serão carregadas dinamicamente -->
+                    </select>
+                </div>
+                <div class="filtro-group">
                     <label>Ordenar por:</label>
                     <select id="filtro-ordem" onchange="filtrarImoveis()">
                         <option value="recente">Mais Recentes</option>

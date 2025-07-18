@@ -356,6 +356,7 @@ function filterImoveis() {
         filteredImoveis = filteredImoveis.filter(i => 
             i.titulo.toLowerCase().includes(searchTerm) ||
             i.endereco.toLowerCase().includes(searchTerm) ||
+            i.bairro.toLowerCase().includes(searchTerm) ||
             i.descricao.toLowerCase().includes(searchTerm)
         );
     }
@@ -385,6 +386,7 @@ function editImovel(id) {
     document.getElementById('imovel-banheiros').value = imovel.banheiros || '';
     document.getElementById('imovel-area').value = imovel.area || '';
     document.getElementById('imovel-endereco').value = imovel.endereco || '';
+    document.getElementById('imovel-bairro').value = imovel.bairro || '';
     document.getElementById('imovel-descricao').value = imovel.descricao || '';
     document.getElementById('imovel-fotos').value = (imovel.fotos || []).join('\n');
     document.getElementById('imovel-status').value = imovel.status;
@@ -413,6 +415,7 @@ async function saveImovel() {
             banheiros: parseInt(formData.get('banheiros')) || 0,
             area: parseFloat(formData.get('area')) || 0,
             endereco: formData.get('endereco'),
+            bairro: formData.get('bairro'),
             descricao: formData.get('descricao'),
             fotos: formData.get('fotos').split('\n').filter(url => url.trim()),
             status: formData.get('status'),
