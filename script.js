@@ -684,6 +684,9 @@ async function enviarFormularioContato(dados) {
         btnEnviar.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Enviando...';
         btnEnviar.disabled = true;
         
+        console.log('Enviando contato para API:', dados); // Debug
+        console.log('URL da API:', `${API_BASE_URL}/contato`); // Debug
+        
         // Envio real para a API
         const response = await fetch(`${API_BASE_URL}/contato`, {
             method: 'POST',
@@ -699,7 +702,12 @@ async function enviarFormularioContato(dados) {
             })
         });
         
+        console.log('Resposta da API:', response.status, response.statusText); // Debug
+        
         if (response.ok) {
+            const responseData = await response.json();
+            console.log('Dados da resposta:', responseData); // Debug
+            
             // Sucesso
             btnEnviar.innerHTML = '<i class="fas fa-check"></i> Enviado!';
             btnEnviar.style.background = '#28a745';
@@ -710,6 +718,8 @@ async function enviarFormularioContato(dados) {
             // Mostrar mensagem de sucesso
             alert('Mensagem enviada com sucesso! Entraremos em contato em breve.');
         } else {
+            const errorData = await response.text();
+            console.error('Erro na API:', errorData); // Debug
             throw new Error('Erro na resposta do servidor');
         }
         
