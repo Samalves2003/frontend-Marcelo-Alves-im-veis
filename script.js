@@ -66,6 +66,9 @@ function setupSearchTabs() {
             // Atualiza placeholder do preço baseado no tipo
             const tipo = this.dataset.type;
             updatePricePlaceholders(tipo);
+            
+            // Aplica o filtro automaticamente
+            aplicarFiltroFinalidade(tipo);
         });
     });
 }
@@ -129,6 +132,30 @@ function setupHeaderScroll() {
         
         lastScrollTop = scrollTop;
     });
+}
+
+// Aplicar filtro de finalidade automaticamente
+function aplicarFiltroFinalidade(tipo) {
+    // Converter tipo do botão para finalidade do imóvel
+    const finalidade = tipo === 'comprar' ? 'venda' : 'aluguel';
+    
+    // Atualizar o filtro de finalidade no select
+    const filtroFinalidade = document.getElementById('filtro-finalidade');
+    if (filtroFinalidade) {
+        filtroFinalidade.value = finalidade;
+    }
+    
+    // Atualizar filtros ativos
+    filtrosAtivos.finalidade = finalidade;
+    
+    // Aplicar filtros
+    filtrarImoveis();
+    
+    // Scroll suave para a seção de imóveis
+    const imoveisSection = document.getElementById('imoveis');
+    if (imoveisSection) {
+        imoveisSection.scrollIntoView({ behavior: 'smooth' });
+    }
 }
 
 // Buscar imóveis
