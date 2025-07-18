@@ -684,25 +684,34 @@ async function enviarFormularioContato(dados) {
         btnEnviar.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Enviando...';
         btnEnviar.disabled = true;
         
-        // Simular envio (substituir por chamada real da API)
-        await new Promise(resolve => setTimeout(resolve, 2000));
+        // Envio real para a API
+        const response = await fetch(`${API_BASE_URL}/contato`, {
+            method: 'POST',
+            headers: { 
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                nome: dados.nome,
+                email: dados.email,
+                telefone: dados.telefone || '',
+                assunto: dados.assunto,
+                mensagem: dados.mensagem
+            })
+        });
         
-        // TODO: Implementar envio real
-        // const response = await fetch(`${API_BASE_URL}/contato`, {
-        //     method: 'POST',
-        //     headers: { 'Content-Type': 'application/json' },
-        //     body: JSON.stringify(dados)
-        // });
-        
-        // Sucesso
-        btnEnviar.innerHTML = '<i class="fas fa-check"></i> Enviado!';
-        btnEnviar.style.background = '#28a745';
-        
-        // Limpar formulário
-        document.getElementById('form-contato').reset();
-        
-        // Mostrar mensagem de sucesso
-        alert('Mensagem enviada com sucesso! Entraremos em contato em breve.');
+        if (response.ok) {
+            // Sucesso
+            btnEnviar.innerHTML = '<i class="fas fa-check"></i> Enviado!';
+            btnEnviar.style.background = '#28a745';
+            
+            // Limpar formulário
+            document.getElementById('form-contato').reset();
+            
+            // Mostrar mensagem de sucesso
+            alert('Mensagem enviada com sucesso! Entraremos em contato em breve.');
+        } else {
+            throw new Error('Erro na resposta do servidor');
+        }
         
         // Restaurar botão após 3 segundos
         setTimeout(() => {
