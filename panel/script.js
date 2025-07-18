@@ -560,6 +560,8 @@ async function loadContatos() {
     try {
         showLoading(true);
         
+        console.log('Carregando contatos da API...'); // Debug
+        
         const response = await fetch(`${API_BASE_URL}/admin/contatos`, {
             headers: {
                 'Authorization': `Bearer ${authToken}`,
@@ -567,38 +569,20 @@ async function loadContatos() {
             }
         });
         
+        console.log('Resposta da API contatos:', response.status); // Debug
+        
         if (response.ok) {
             contatosData = await response.json();
+            console.log('Contatos carregados:', contatosData.length); // Debug
         } else {
-            // Fallback para dados mock se a API falhar
-            contatosData = [
-                {
-                    id: 1,
-                    nome: 'João Silva',
-                    email: 'joao@email.com',
-                    telefone: '(11) 99999-9999',
-                    assunto: 'interesse_compra',
-                    mensagem: 'Tenho interesse em comprar um apartamento.',
-                    dataRecebimento: new Date().toISOString()
-                }
-            ];
+            console.error('Erro na API de contatos:', response.status, response.statusText);
+            contatosData = []; // Lista vazia em caso de erro
         }
         
         renderContatosTable(contatosData);
     } catch (error) {
         console.error('Erro ao carregar contatos:', error);
-        // Usar dados mock em caso de erro
-        contatosData = [
-            {
-                id: 1,
-                nome: 'João Silva',
-                email: 'joao@email.com',
-                telefone: '(11) 99999-9999',
-                assunto: 'interesse_compra',
-                mensagem: 'Tenho interesse em comprar um apartamento.',
-                dataRecebimento: new Date().toISOString()
-            }
-        ];
+        contatosData = []; // Lista vazia em caso de erro
         renderContatosTable(contatosData);
     } finally {
         showLoading(false);
