@@ -1,5 +1,5 @@
 // Configuração da API
-const API_BASE_URL = 'https://marcelo-alves-imoveis-h8lghn1al-samuels-projects-f143a1ab.vercel.app/api';
+const API_BASE_URL = 'https://backend-supabase-afkij59dr-samuels-projects-f143a1ab.vercel.app';
 
 
 
@@ -453,24 +453,31 @@ async function saveImovel() {
     try {
         showLoading(true);
         
-        const formData = new FormData(document.getElementById('imovel-form'));
+        const form = document.getElementById('imovel-form');
+        const formData = new FormData();
         const imovelId = document.getElementById('imovel-id').value;
         
-        const dadosImovel = {
-            titulo: formData.get('titulo'),
-            tipo: formData.get('tipo'),
-            finalidade: formData.get('finalidade'),
-            preco: parseFloat(formData.get('preco')),
-            quartos: parseInt(formData.get('quartos')) || 0,
-            banheiros: parseInt(formData.get('banheiros')) || 0,
-            area: parseFloat(formData.get('area')) || 0,
-            endereco: formData.get('endereco'),
-            bairro: formData.get('bairro'),
-            descricao: formData.get('descricao'),
-            fotos: formData.get('fotos').split('\n').filter(url => url.trim()),
-            status: formData.get('status'),
-            habilitado: formData.get('habilitado') === 'on'
-        };
+        // Adicionar dados do formulário
+        formData.append('titulo', document.getElementById('imovel-titulo').value);
+        formData.append('tipo', document.getElementById('imovel-tipo').value);
+        formData.append('finalidade', document.getElementById('imovel-finalidade').value);
+        formData.append('preco', document.getElementById('imovel-preco').value);
+        formData.append('quartos', document.getElementById('imovel-quartos').value || '0');
+        formData.append('banheiros', document.getElementById('imovel-banheiros').value || '0');
+        formData.append('area', document.getElementById('imovel-area').value || '0');
+        formData.append('endereco', document.getElementById('imovel-endereco').value);
+        formData.append('bairro', document.getElementById('imovel-bairro').value);
+        formData.append('descricao', document.getElementById('imovel-descricao').value);
+        formData.append('status', document.getElementById('imovel-status').value);
+        formData.append('habilitado', document.getElementById('imovel-habilitado').checked);
+        
+        // Adicionar arquivos de foto
+        const fotosInput = document.getElementById('imovel-fotos');
+        if (fotosInput.files) {
+            for (let i = 0; i < fotosInput.files.length; i++) {
+                formData.append('fotos', fotosInput.files[i]);
+            }
+        }
         
         const url = imovelId ? 
             `${API_BASE_URL}/admin/imoveis/${imovelId}` : 
@@ -478,21 +485,23 @@ async function saveImovel() {
         
         const method = imovelId ? 'PUT' : 'POST';
         
+        console.log(`${method} ${url} - Enviando dados do imóvel...`);
+        
         const response = await fetch(url, {
             method: method,
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${authToken}`
-            },
-            body: JSON.stringify(dadosImovel)
+            body: formData // Não definir Content-Type para FormData
         });
         
         if (response.ok) {
+            const imovel = await response.json();
+            console.log('Imóvel salvo:', imovel);
+            
             closeImovelModal();
             loadImoveis();
             showSuccess(imovelId ? 'Imóvel atualizado com sucesso!' : 'Imóvel criado com sucesso!');
         } else {
             const error = await response.json();
+            console.error('Erro na resposta:', error);
             showError(error.error || 'Erro ao salvar imóvel');
         }
     } catch (error) {
@@ -874,4 +883,258 @@ const animations = `
 `;
 
 document.head.insertAdjacentHTML('beforeend', animations);
+
+
+
+// =====================================================
+// FUNÇÕES DE UPLOAD DE ARQUIVOS
+// =====================================================
+
+// Inicializar upload de arquivos
+document.addEventListener('DOMContentLoaded', function() {
+    setupFileUpload();
+});
+
+function setupFileUpload() {
+    const fileInput = document.getElementById('imovel-fotos');
+    const uploadArea = document.querySelector('.file-upload-area');
+    const previewContainer = document.getElementById('preview-container');
+    
+    if (!fileInput || !uploadArea) return;
+    
+    // Eventos de drag and drop
+    uploadArea.addEventListener('dragover', handleDragOver);
+    uploadArea.addEventListener('dragleave', handleDragLeave);
+    uploadArea.addEventListener('drop', handleDrop);
+    
+    // Evento de seleção de arquivos
+    fileInput.addEventListener('change', handleFileSelect);
+    
+    // Limpar preview ao abrir modal
+    document.querySelector('[onclick="showAddImovelModal()"]')?.addEventListener('click', clearPreview);
+}
+
+function handleDragOver(e) {
+    e.preventDefault();
+    e.stopPropagation();
+    e.currentTarget.classList.add('dragover');
+}
+
+function handleDragLeave(e) {
+    e.preventDefault();
+    e.stopPropagation();
+    e.currentTarget.classList.remove('dragover');
+}
+
+function handleDrop(e) {
+    e.preventDefault();
+    e.stopPropagation();
+    e.currentTarget.classList.remove('dragover');
+    
+    const files = e.dataTransfer.files;
+    const fileInput = document.getElementById('imovel-fotos');
+    
+    // Atualizar o input com os arquivos
+    fileInput.files = files;
+    
+    // Mostrar preview
+    showFilePreview(files);
+}
+
+function handleFileSelect(e) {
+    const files = e.target.files;
+    showFilePreview(files);
+}
+
+function showFilePreview(files) {
+    const previewContainer = document.getElementById('preview-container');
+    if (!previewContainer) return;
+    
+    // Limpar preview anterior
+    previewContainer.innerHTML = '';
+    
+    // Validar número de arquivos
+    if (files.length > 10) {
+        showError('Máximo de 10 fotos permitidas');
+        return;
+    }
+    
+    Array.from(files).forEach((file, index) => {
+        // Validar tipo de arquivo
+        if (!file.type.startsWith('image/')) {
+            showError(`Arquivo ${file.name} não é uma imagem válida`);
+            return;
+        }
+        
+        // Validar tamanho (5MB)
+        if (file.size > 5 * 1024 * 1024) {
+            showError(`Arquivo ${file.name} é muito grande (máximo 5MB)`);
+            return;
+        }
+        
+        createPreviewItem(file, index);
+    });
+}
+
+function createPreviewItem(file, index) {
+    const previewContainer = document.getElementById('preview-container');
+    
+    const previewItem = document.createElement('div');
+    previewItem.className = 'preview-item';
+    previewItem.dataset.index = index;
+    
+    // Criar preview da imagem
+    const reader = new FileReader();
+    reader.onload = function(e) {
+        previewItem.innerHTML = `
+            <img src="${e.target.result}" alt="${file.name}" class="preview-image">
+            <button type="button" class="preview-remove" onclick="removePreviewItem(${index})">
+                <i class="fas fa-times"></i>
+            </button>
+            <div class="preview-info">
+                <div class="preview-name">${file.name}</div>
+                <div class="preview-size">${formatFileSize(file.size)}</div>
+            </div>
+        `;
+    };
+    reader.readAsDataURL(file);
+    
+    previewContainer.appendChild(previewItem);
+}
+
+function removePreviewItem(index) {
+    const previewItem = document.querySelector(`[data-index="${index}"]`);
+    if (previewItem) {
+        previewItem.remove();
+        
+        // Atualizar o input de arquivos
+        const fileInput = document.getElementById('imovel-fotos');
+        const dt = new DataTransfer();
+        
+        Array.from(fileInput.files).forEach((file, i) => {
+            if (i !== index) {
+                dt.items.add(file);
+            }
+        });
+        
+        fileInput.files = dt.files;
+        
+        // Recriar preview com novos índices
+        showFilePreview(fileInput.files);
+    }
+}
+
+function clearPreview() {
+    const previewContainer = document.getElementById('preview-container');
+    if (previewContainer) {
+        previewContainer.innerHTML = '';
+    }
+    
+    const fileInput = document.getElementById('imovel-fotos');
+    if (fileInput) {
+        fileInput.value = '';
+    }
+}
+
+function formatFileSize(bytes) {
+    if (bytes === 0) return '0 Bytes';
+    
+    const k = 1024;
+    const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+    
+    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+}
+
+// Atualizar função editImovel para carregar fotos existentes
+function editImovelWithPhotos(id) {
+    const imovel = imoveisData.find(i => i.id === id);
+    if (!imovel) return;
+    
+    // Preencher dados básicos
+    document.getElementById('modal-title').textContent = 'Editar Imóvel';
+    document.getElementById('imovel-id').value = imovel.id;
+    document.getElementById('imovel-titulo').value = imovel.titulo;
+    document.getElementById('imovel-tipo').value = imovel.tipo;
+    document.getElementById('imovel-finalidade').value = imovel.finalidade;
+    document.getElementById('imovel-preco').value = imovel.preco;
+    document.getElementById('imovel-quartos').value = imovel.quartos || '';
+    document.getElementById('imovel-banheiros').value = imovel.banheiros || '';
+    document.getElementById('imovel-area').value = imovel.area || '';
+    document.getElementById('imovel-endereco').value = imovel.endereco || '';
+    document.getElementById('imovel-bairro').value = imovel.bairro || '';
+    document.getElementById('imovel-descricao').value = imovel.descricao || '';
+    document.getElementById('imovel-status').value = imovel.status;
+    document.getElementById('imovel-habilitado').checked = imovel.habilitado;
+    
+    // Limpar preview de novas fotos
+    clearPreview();
+    
+    // Mostrar fotos existentes
+    showExistingPhotos(imovel.fotos || []);
+    
+    document.getElementById('imovel-modal').style.display = 'flex';
+}
+
+function showExistingPhotos(fotos) {
+    const previewContainer = document.getElementById('preview-container');
+    if (!previewContainer || !fotos.length) return;
+    
+    // Criar seção de fotos existentes
+    const existingSection = document.createElement('div');
+    existingSection.className = 'existing-photos';
+    existingSection.innerHTML = `
+        <h4>Fotos Atuais</h4>
+        <div class="existing-photos-grid" id="existing-photos-grid"></div>
+    `;
+    
+    previewContainer.appendChild(existingSection);
+    
+    const grid = document.getElementById('existing-photos-grid');
+    
+    fotos.forEach((foto, index) => {
+        const photoItem = document.createElement('div');
+        photoItem.className = 'existing-photo';
+        photoItem.innerHTML = `
+            <img src="${foto.url}" alt="Foto ${index + 1}" loading="lazy">
+            <button type="button" class="existing-photo-remove" onclick="removeExistingPhoto(${foto.id})">
+                <i class="fas fa-times"></i>
+            </button>
+        `;
+        grid.appendChild(photoItem);
+    });
+}
+
+async function removeExistingPhoto(fotoId) {
+    if (!confirm('Tem certeza que deseja remover esta foto?')) return;
+    
+    try {
+        showLoading(true);
+        
+        const response = await fetch(`${API_BASE_URL}/admin/imoveis/fotos/${fotoId}`, {
+            method: 'DELETE'
+        });
+        
+        if (response.ok) {
+            // Remover da interface
+            const photoElement = document.querySelector(`[onclick="removeExistingPhoto(${fotoId})"]`).closest('.existing-photo');
+            if (photoElement) {
+                photoElement.remove();
+            }
+            
+            showSuccess('Foto removida com sucesso!');
+        } else {
+            const error = await response.json();
+            showError(error.error || 'Erro ao remover foto');
+        }
+    } catch (error) {
+        console.error('Erro ao remover foto:', error);
+        showError('Erro de conexão');
+    } finally {
+        showLoading(false);
+    }
+}
+
+// Substituir a função editImovel original
+window.editImovel = editImovelWithPhotos;
 

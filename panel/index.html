@@ -328,8 +328,16 @@
                 </div>
                 
                 <div class="form-group">
-                    <label for="imovel-fotos">URLs das Fotos (uma por linha)</label>
-                    <textarea id="imovel-fotos" name="fotos" rows="3" placeholder="https://exemplo.com/foto1.jpg&#10;https://exemplo.com/foto2.jpg"></textarea>
+                    <label for="imovel-fotos">Fotos do Imóvel</label>
+                    <div class="file-upload-area">
+                        <input type="file" id="imovel-fotos" name="fotos" multiple accept="image/*" class="file-input">
+                        <div class="file-upload-label">
+                            <i class="fas fa-cloud-upload-alt"></i>
+                            <p>Clique para selecionar fotos ou arraste aqui</p>
+                            <small>Máximo 10 fotos, 5MB cada (JPG, PNG, WebP)</small>
+                        </div>
+                        <div id="preview-container" class="preview-container"></div>
+                    </div>
                 </div>
                 
                 <div class="form-row">
