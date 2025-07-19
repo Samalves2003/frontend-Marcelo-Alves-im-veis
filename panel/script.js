@@ -1,5 +1,5 @@
 // Configuração da API
-const API_BASE_URL = 'https://backend-supabase-afkij59dr-samuels-projects-f143a1ab.vercel.app';
+const API_BASE_URL = 'https://marcelo-alves-imoveis-mr3uyiooy-samuels-projects-f143a1ab.vercel.app';
 
 
 
